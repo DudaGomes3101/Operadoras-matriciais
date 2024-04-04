@@ -1,6 +1,8 @@
-/*Grupo: Operadoras matriciais
+/*
+Grupo: Operadoras matriciais
 Maria Eduarda de Souza Gomes 260844
-Tammy Kojima 213792*/
+Tammy Kojima 213792
+*/
 
 
 #include <stdio.h>
