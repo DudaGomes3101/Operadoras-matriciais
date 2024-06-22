@@ -31,7 +31,7 @@ void LerMatrizes(FILE *arquivo, struct Matriz *matrizA, struct Matriz *matrizB) 
 
     // Se houver, ler as dimensões da segunda matriz do arquivo e armazenar nos membros da estrutura segunda_matriz
 
-    fscanf(arquivo, "%d %d", &matrizB->linha, &matrizB->coluna);
+        fscanf(arquivo, "%d %d", &matrizB->linha, &matrizB->coluna);
     }
 
     // Se o indicador de fim de arquivo for acionado, significa que só há uma matriz no arquivo
@@ -43,7 +43,7 @@ void LerMatrizes(FILE *arquivo, struct Matriz *matrizA, struct Matriz *matrizB) 
 
 // Alocação dinâmica de uma matriz com m linhas e n colunas - objetivo de armazenar os elementos da matriz
 
-float **AlocarMatriz(int m, int n) {
+/*float **AlocarMatriz(int m, int n) {
     // Alocar memória para um vetor de ponteiros para as linhas da matriz, onde cada ponteiro aponta para um array de floats
     float **mat = (float **)malloc(m * sizeof(float *));
     // Verificar se a alocação foi bem sucedida
@@ -61,8 +61,19 @@ float **AlocarMatriz(int m, int n) {
         }
     }
     return mat; // Retornar um ponteiro para um array de ponteiros que apontam para as linhas da matriz alocada
+}*/
+float *AlocarMatriz(int m, int n) {
+    // Alocar memória para a matriz inteira de uma vez
+    float *mat = (float *)malloc(m * n * sizeof(float));
+    // Verificar se a alocação foi bem sucedida
+    if (mat == NULL) {
+        printf("Erro ao alocar memória para a matriz.\n");
+        exit(1); // Encerra o programa
+    }
+    return mat; // Retornar um ponteiro para o bloco contínuo de memória alocada
 }
-
+// aqui quando for para acessar o elemento na linha i e coluna j, vc precisa chamar assim: mat[i * n + j], sendo n o numero de colunas 
+// mudei aqui pq tem q ser alocação em uma unica etapa
 
 
 // Leitura dos elementos das matrizes do arquivo
@@ -163,8 +174,8 @@ float Reduzir(float **matrizE,int linhas, int colunas){
 int main() {
     FILE *arquivo;
     struct Matriz matrizA, matrizB, matrizC, matrizD, matrizE;
-    float *matrizA_elementos; / Isso declara uma variável chamada primeira_matriz_elementos que é um ponteiro para um ponteiro para float. */
-    // Usado para armazenar a matriz de elementos da primeira matriz lida do arquivo //
+    float *matrizA_elementos; // Isso declara uma variável chamada primeira_matriz_elementos que é um ponteiro para um ponteiro para float. 
+    // Usado para armazenar a matriz de elementos da primeira matriz lida do arquivo 
     float **matrizB_elementos;
     float **matrizD_elementos;
     float **matrizC_elementos;
