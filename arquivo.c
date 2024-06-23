@@ -391,16 +391,16 @@ float Reduzir(float *matrizE, int linhas, int colunas,int num_threads) {
 //  MAIN
 int main(int argc, char *argv[]) {
     //FILE *arqA, *arqB, *arqC, *arqD, *arqE;
-    struct Matriz matrizA, matrizB, matrizC, matrizD, matrizE;
+    struct Matriz matrizA, matrizB, matrizC, matrizD;
     float *matrizA_elementos; // Isso declara uma variável chamada primeira_matriz_elementos que é um ponteiro para um ponteiro para float. 
     // Usado para armazenar a matriz de elementos da primeira matriz lida do arquivo 
     float *matrizB_elementos;
     float *matrizD_elementos;
     float *matrizC_elementos;
     float *matrizE_elementos;
-    float resultadodareducao;
+
     //variáveis de tempo
-    clock_t start, start_soma, end_soma, start_mult, end_mult, start_reducao, end_reducao, end;
+    clock_t start, end;
 
 
     //definições
@@ -424,8 +424,6 @@ int main(int argc, char *argv[]) {
     matrizC.coluna = tamanho_matriz;
     matrizD.linha = tamanho_matriz;
     matrizD.coluna = tamanho_matriz;
-    matrizE.linha = tamanho_matriz;
-    matrizE.coluna = tamanho_matriz;
 
     // Verificar se os tamanhos das matrizes nos arquivos de entrada correspondem ao tamanho esperado
     if (!VerificarTamanhoMatrizes(arqA, arqB, arqC, tamanho_matriz)) {
@@ -469,7 +467,7 @@ int main(int argc, char *argv[]) {
         EscreverMatrizResultado(arqE, matrizE_elementos, matrizC.linha, matrizD.coluna);
 
         // Reduzir a matriz E e obter um único valor
-        resultadodareducao = Reduzir(matrizE_elementos, matrizC.linha, matrizD.coluna, num_threads);
+        Reduzir(matrizE_elementos, matrizC.linha, matrizD.coluna, num_threads);
 
     }
     end = clock(); //Fim do fluxo
