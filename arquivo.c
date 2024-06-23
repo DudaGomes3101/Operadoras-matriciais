@@ -18,14 +18,14 @@ struct Matriz {
 //Estrutura para encapsular as inforamções que cada thread precisa
 typedef struct {
     const char *nomeArquivo;    
-    float *matriz;
+    int *matriz;
     int linhas;
     int colunas;      // Número de colunas e linhas nas matrizes
 } ThreadLeituraInfo;
 typedef struct{
-    float *matrizA;
-    float *matrizB;
-    float *matrizD;
+    int *matrizA;
+    int *matrizB;
+    int *matrizD;
     int linhas;
     int colunas;
     int thread_id;     // ID da thread (para identificar qual parte da matriz esta thread processará)
@@ -33,9 +33,9 @@ typedef struct{
     double tempo_soma;
 } ThreadSomaInfo;
 typedef struct{
-    float *matrizC;
-    float *matrizD;
-    float *matrizE;
+    int *matrizC;
+    int *matrizD;
+    int *matrizE;
     int linhas;
     int colunas1;
     int colunas2;
@@ -45,12 +45,12 @@ typedef struct{
 } ThreadMultInfo;
 typedef struct{
     const char *nomeArquivo;
-    float *matriz;
+    int *matriz;
     int linhas;
     int colunas;
 }ThreadEscritaInfo;
 typedef struct{
-    float *matrizE;
+    int *matrizE;
     int linhas;
     int colunas;
     float resultado;
@@ -69,10 +69,10 @@ double medirtempo(clock_t start, clock_t end){
     return tempo;
 }
 
-// Alocação dinâmica de uma matriz com m linhas e n colunas - objetivo de armazenar os elementos da matriz
-float *AlocarMatriz(int m, int n) {
+// Alocação dinâmica de uma matriz com m linhas e n colunas 
+int *AlocarMatriz(int m, int n) {
     // Alocar memória para a matriz inteira de uma vez
-    float *mat = (float *)malloc(m * n * sizeof(float));
+    int *mat = (float *)malloc(m * n * sizeof(float));
     // Verificar se a alocação foi bem sucedida
     if (mat == NULL) {
         printf("Erro ao alocar memória para a matriz.\n");
@@ -111,18 +111,18 @@ void LerElementosMatrizes(const char *nomeArquivo, float *matriz, int linhas, in
 }
 
 //Thread le a matriz A
-void * LerMatrizA(void *args){
+void * LerMatriz(void *args){
     ThreadLeituraInfo* info = (ThreadLeituraInfo*) args;
     LerElementosMatrizes(info->nomeArquivo, info->matriz, info->linhas, info->colunas);
     pthread_exit(NULL);
 }
 
 //Thread le a matriz B
-void * LerMatrizB(void *args){
+/*void * LerMatrizB(void *args){
     ThreadLeituraInfo* info = (ThreadLeituraInfo*) args;
     LerElementosMatrizes(info->nomeArquivo, info->matriz, info->linhas, info->colunas);
     pthread_exit(NULL);
-}
+}*/
 
 // Função para somar duas matrizes e armazenar o resultado em uma terceira matriz
 void ThreadSomarMatrizes(void *args){
@@ -142,7 +142,6 @@ void ThreadSomarMatrizes(void *args){
     info->tempo_soma = (double)(end-start) /CLOCKS_PER_SEC;
     pthread_exit(NULL);
 }
-
 float *SomarMatrizes(float *matrizA, float *matrizB, int linhas, int colunas, int num_threads) {
     // A função recebe duas matrizes como parâmetros (matrizA e matrizB), cada uma representada por um ponteiro para um array de ponteiros.
     // Além disso, ela recebe o número de linhas (linhas) e colunas (colunas) das matrizes como argumentos.
@@ -390,18 +389,10 @@ float Reduzir(float *matrizE, int linhas, int colunas,int num_threads) {
 
 //  MAIN
 int main(int argc, char *argv[]) {
-    //FILE *arqA, *arqB, *arqC, *arqD, *arqE;
     struct Matriz matrizA, matrizB, matrizC, matrizD;
-    float *matrizA_elementos; // Isso declara uma variável chamada primeira_matriz_elementos que é um ponteiro para um ponteiro para float. 
-    // Usado para armazenar a matriz de elementos da primeira matriz lida do arquivo 
-    float *matrizB_elementos;
-    float *matrizD_elementos;
-    float *matrizC_elementos;
-    float *matrizE_elementos;
-
+    float *matrizA_elementos, *matrizB_elementos, *matrizD_elementos, *matrizC_elementos, *matrizE_elementos;
     //variáveis de tempo
     clock_t start, end;
-
 
     //definições
     if (argc < 8) {
@@ -430,30 +421,55 @@ int main(int argc, char *argv[]) {
         return 1; //Falha na verificação do tamanho
     }
 
-    start = clock(); //início das operações
+    //início das operações
+    start = clock(); 
 
-    // Matriz A e B
-    // Alocar memória para as matrizes
-    // O tipo de retorno é float ** porque uma matriz em C é um ponteiro para um array de ponteiros
+    // Matriz A, B e C
     matrizA_elementos = AlocarMatriz(matrizA.linha, matrizA.coluna);
     matrizB_elementos = AlocarMatriz(matrizB.linha, matrizB.coluna);
     matrizC_elementos = AlocarMatriz(matrizC.linha, matrizC.coluna);
-
     // Ler os elementos de cada matriz
-    LerElementosMatrizes(arqA, matrizA_elementos, matrizA.linha, matrizA.coluna);
-    LerElementosMatrizes(arqB, matrizB_elementos, matrizB.linha, matrizB.coluna);
+    ThreadLeituraInfo infoA = {arqA, matrizA_elementos,  matrizA.linha,  matrizA.coluna};
+    ThreadLeituraInfo infoB = {arqB, matrizB_elementos, matrizB.linha, matrizB.coluna};
+    // Criar threads de leitura
+    pthread_t threadA, threadB;
+    if (pthread_create(&threadA, NULL, LerMatriz, (void *)&infoA) != 0) {
+        fprintf(stderr, "Erro ao criar a thread de leitura para o arquivo A.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (pthread_create(&threadB, NULL, LerMatriz, (void *)&infoB) != 0) {
+        fprintf(stderr, "Erro ao criar a thread de leitura para o arquivo B.\n");
+        exit(EXIT_FAILURE);
+    }
+    // Aguardar término das threads
+    if (pthread_join(threadA, NULL) != 0) {
+        fprintf(stderr, "Erro ao aguardar a thread de leitura para o arquivo A.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (pthread_join(threadB, NULL) != 0) {
+        fprintf(stderr, "Erro ao aguardar a thread de leitura para o arquivo B.\n");
+        exit(EXIT_FAILURE);
+    }
+    //LerElementosMatrizes(arqA, matrizA_elementos, matrizA.linha, matrizA.coluna);
+    //LerElementosMatrizes(arqB, matrizB_elementos, matrizB.linha, matrizB.coluna);
     LerElementosMatrizes(arqC, matrizC_elementos, matrizC.linha, matrizC.coluna);
 
     // Realizar a soma das matrizes A e B
     matrizD_elementos = SomarMatrizes(matrizA_elementos, matrizB_elementos, matrizA.linha, matrizA.coluna, num_threads);
-
-    // Abrir arquivo para escrita da matriz D resultante da soma de A e B
-    EscreverMatrizResultado(arqD, matrizD_elementos, matrizA.linha, matrizA.coluna);
-
-    // Alocar memória para a matriz C
-    matrizC_elementos = AlocarMatriz(matrizC.linha, matrizC.coluna);
-    // Ler os elementos da matriz C
-    LerElementosMatrizes(arqC, matrizC_elementos, matrizC.linha, matrizC.coluna);
+    // Criar a estrutura de informações para a thread de escrita
+    ThreadEscritaInfo infoEscritaD = {arqD, matrizD_elementos, matrizD.linha, matrizD.coluna};
+    // Criar a thread de escrita
+    pthread_t threadEscritaD;
+    if (pthread_create(&threadEscritaD, NULL, Threadescrevenamatriz, (void *)&infoEscritaD) != 0) {
+        fprintf(stderr, "Erro ao criar a thread de escrita para a matriz D.\n");
+        exit(EXIT_FAILURE);
+    }
+    // Aguardar o término da thread de escrita
+    if (pthread_join(threadEscritaD, NULL) != 0) {
+        fprintf(stderr, "Erro ao aguardar a thread de escrita para a matriz D.\n");
+        exit(EXIT_FAILURE);
+    }
+    
     // Verificar se o número de colunas da matriz C é igual ao número de linhas da matriz D
     if (matrizC.coluna != matrizD.linha) {
         printf("Erro: O número de colunas da matrizC não é igual ao número de linhas da matrizD. A multiplicação não é permitida.\n");
@@ -462,17 +478,16 @@ int main(int argc, char *argv[]) {
     else{
         // Realizar a multiplicação da Matriz C pela D
         matrizE_elementos = MultiplicarMatrizes(matrizC_elementos, matrizD_elementos, matrizC.linha, matrizC.coluna, matrizD.coluna, num_threads);
-    
         // Abrir arquivo para escrita da matriz E resultante da multiplicação de C e D
-        EscreverMatrizResultado(arqE, matrizE_elementos, matrizC.linha, matrizD.coluna);
-
+        pthread_t thread_escritaE;
+        ThreadEscritaInfo infoE = {arqE, matrizE_elementos, tamanho_matriz, tamanho_matriz};
+        pthread_create(&thread_escritaE, NULL, Threadescrevenamatriz, (void *)&infoE);
+        pthread_join(thread_escritaE, NULL);
         // Reduzir a matriz E e obter um único valor
         Reduzir(matrizE_elementos, matrizC.linha, matrizD.coluna, num_threads);
-
     }
-    end = clock(); //Fim do fluxo
-    
 
+    end = clock(); //Fim do fluxo
     printf("Tempo total: %.6f segundos.\n", medirtempo(start, end));
 
     // Liberar memória alocada para as matrizes
