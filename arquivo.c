@@ -89,21 +89,9 @@ void LerElementosMatrizes(const char *nomeArquivo, int *matriz, int linhas, int 
         fprintf(stderr,"Erro ao abrir o arquivo %s.\n", nomeArquivo);
         exit(1); // Encerra o programa em caso de erro na abertura do arquivo
     }
-
-    // Ler os valores de linhas e colunas (primeira linha)
-    int linhasArquivo, colunasArquivo;
-    fscanf(arquivo, "%d %d", &linhasArquivo, &colunasArquivo);
-
-    // Verificar se os valores lidos correspondem aos parâmetros passados
-    if(linhasArquivo != linhas || colunasArquivo != colunas) {
-        fprintf(stderr, "Erro: O tamanho da matriz no arquivo %s não corresponde ao tamanho esperado.\n", nomeArquivo);
-        fclose(arquivo);
-        exit(1); // Encerra o programa
-    }
-
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
-            fscanf(arquivo, "%f", &matriz[i * linhas + j]); // Ler cada elemento da matriz do arquivo e armazenar na posição correspondente na matriz
+            fscanf(arquivo, "%d", &matriz[i * linhas + j]); // Ler cada elemento da matriz do arquivo e armazenar na posição correspondente na matriz
         }
     }
 
@@ -136,9 +124,6 @@ void ThreadSomarMatrizes(void *args){
     pthread_exit(NULL);
 }
 int *SomarMatrizes(int *matrizA, int *matrizB, int linhas, int colunas, int num_threads) {
-    // A função recebe duas matrizes como parâmetros (matrizA e matrizB), cada uma representada por um ponteiro para um array de ponteiros.
-    // Além disso, ela recebe o número de linhas (linhas) e colunas (colunas) das matrizes como argumentos.
-
     // Aloca memória para armazenar a matriz resultante (matrizD) com o mesmo número de linhas e colunas das matrizes de entrada.
     int *matrizD = AlocarMatriz(linhas, colunas);
     pthread_t threads[num_threads];
@@ -192,7 +177,7 @@ void EscreverMatrizResultado(const char *nomeArquivo, int *matriz, int linhas, i
     // Escrever os elementos da matriz resultante no arquivo
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
-            fprintf(arquivo, "%.2f ", matriz[i * colunas + j]);
+            fprintf(arquivo, "%d", matriz[i * colunas + j]);
         }
         fprintf(arquivo, "\n");
     }
@@ -337,11 +322,12 @@ int main(int argc, char *argv[]) {
     clock_t start, end;
 
     //definições
-    if (argc < 8) {
-        printf("Uso: %s <tamanho_matriz> 100 arqA.dat arqB.dat arqC.dat arqD.dat arqE.dat\n", argv[0]);
+    if (argc != 8) {
+        printf("Uso: %s <quant. threads> <tamanho da matriz> arqA.dat arqB.dat arqC.dat arqD.dat arqE.dat\n", argv[0]);
         return 1;
     }
     int num_threads = atoi(argv[1]); // Número de threads 
+
     int tamanho_matriz = atoi(argv[2]);  // Tamanho da matriz (n)
     const char *arqA = argv[3];          
     const char *arqB = argv[4];          
