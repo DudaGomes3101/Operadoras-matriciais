@@ -1,0 +1,7 @@
+Pra compilar:
+1° passo 
+gcc -Wall -Wextra -o programa arquivo.c -pthread -lm
+2° passo
+chmod +x programa
+3° passo
+./programa 2 4 arqA.txt arqB.txt arqC.txt arqD.txt arqE.txt

@@ -207,49 +207,6 @@ void *Threadescrevenamatriz(void *args) {
     pthread_exit(NULL);
 }
 
-// Função para verificar o tamanho das matrizes nos arquivos de entrada
-int VerificarTamanhoMatrizes(const char *arqA, const char *arqB, const char *arqC, int tamanho_matriz) {
-    // Verificar matriz A
-    FILE *fileA = fopen(arqA, "r");
-    if (fileA == NULL) {
-        fprintf(stderr,"Erro ao abrir o arquivo %s.\n", arqA);
-        return 0; // Retorna 0 para indicar falha na abertura do arquivo
-    }
-    int linhasA, colunasA;
-    fscanf(fileA, "%d %d", &linhasA, &colunasA);
-    fclose(fileA);
-
-    // Verificar matriz B
-    FILE *fileB = fopen(arqB, "r");
-    if (fileB == NULL) {
-        fprintf(stderr,"Erro ao abrir o arquivo %s.\n", arqB);
-        return 0; // Retorna 0 para indicar falha na abertura do arquivo
-    }
-    int linhasB, colunasB;
-    fscanf(fileB, "%d %d", &linhasB, &colunasB);
-    fclose(fileB);
-
-    // Verificar matriz C
-    FILE *fileC = fopen(arqC, "r");
-    if (fileC == NULL) {
-        fprintf(stderr,"Erro ao abrir o arquivo %s.\n", arqC);
-        return 0; // Retorna 0 para indicar falha na abertura do arquivo
-    }
-    int linhasC, colunasC;
-    fscanf(fileC, "%d %d", &linhasC, &colunasC);
-    fclose(fileC);
-
-    // Verificar se os tamanhos das matrizes correspondem ao tamanho_matriz esperado
-    if (linhasA != tamanho_matriz || colunasA != tamanho_matriz ||
-        linhasB != tamanho_matriz || colunasB != tamanho_matriz ||
-        linhasC != tamanho_matriz || colunasC != tamanho_matriz) {
-        fprintf(stderr, "Erro: Tamanho das matrizes nos arquivos de entrada não corresponde ao tamanho esperado %dx%d.\n", tamanho_matriz, tamanho_matriz);
-        return 0; // Retorna 0 para indicar falha na verificação do tamanho
-    }
-
-    return 1; // Retorna 1 para indicar que os tamanhos estão corretos
-}
-
 void *ThreadMultiplicarMatrizes(void *arg) {
     ThreadMultInfo *info = (ThreadMultInfo *)arg;
     clock_t start = clock(); //Inicio da Multiplicação
@@ -272,13 +229,6 @@ void *ThreadMultiplicarMatrizes(void *arg) {
 
 // Função para multiplicar duas matrizes e armazenar o resultado em uma terceira matriz
 int *MultiplicarMatrizes(int *matrizC, int *matrizD, int linhas, int colunas1, int colunas2, int num_threads) {
-    /* Parâmetros:
-     * - matrizC: Matriz C a ser multiplicada (array de ponteiros para floats).
-     * - matrizD: Matriz D a ser multiplicada (array de ponteiros para floats).
-     * - linhas: Número de linhas da matriz C e matriz E.
-     * - colunas1: Número de colunas da matriz C (deve ser igual ao número de linhas da matriz D).
-     * - colunas2: Número de colunas da matriz D e matriz E. */
-
     // Aloca memória para armazenar a matriz resultante (matrizE) com o mesmo número de linhas e colunas das matrizes de entrada.
     int *matrizE = AlocarMatriz(linhas, colunas2);
     pthread_t threads[num_threads];
@@ -343,7 +293,7 @@ void *ThreadReduzir(void *arg) {
 int Reduzir(int *matrizE, int linhas, int colunas,int num_threads) {
     pthread_t threads[num_threads];
     ThreadReducaoInfo thread_info[num_threads];
-    int numeroreduzido = 0;
+    float numeroreduzido = 0;
     double tempo_total = 0;
 
     // Realizar a redução da matrizE.
@@ -407,11 +357,6 @@ int main(int argc, char *argv[]) {
     matrizC.coluna = tamanho_matriz;
     matrizD.linha = tamanho_matriz;
     matrizD.coluna = tamanho_matriz;
-
-    // Verificar se os tamanhos das matrizes nos arquivos de entrada correspondem ao tamanho esperado
-    if (!VerificarTamanhoMatrizes(arqA, arqB, arqC, tamanho_matriz)) {
-        return 1; //Falha na verificação do tamanho
-    }
 
     //início das operações
     start = clock(); 
