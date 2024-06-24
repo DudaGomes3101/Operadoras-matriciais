@@ -1,6 +1,6 @@
 Pra compilar:
 1° passo 
-gcc -Wall -Wextra -o programa arquivo.c -pthread -lm
+gcc -Wall -Wextra -o programa main.c -pthread -lm
 2° passo
 chmod +x programa
 3° passo
