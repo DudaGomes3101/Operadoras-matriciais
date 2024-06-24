@@ -314,6 +314,25 @@ int Reduzir(int *matrizE, int linhas, int colunas,int num_threads) {
     return numeroreduzido;
 }
 
+// função que exibirá a quantidade de linhas do arquivo para depois ser possível verificar se a quantidade que for fornecida na hora de copilação é maior ou não
+int TamanhoMatriz(const char *nomeArquivo) {
+    FILE *arquivo = fopen(nomeArquivo, "r");
+    int contagem = 0;
+    char linha[100000]; // Tamanho máximo de uma linha
+
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo");
+        return -1; // Retorna -1 em caso de erro
+    }
+    // Conta as linhas do arquivo
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        contagem++;
+    }
+    fclose(arquivo);
+    return contagem;
+}
+
+
 //  MAIN
 int main(int argc, char *argv[]) {
     struct Matriz matrizA, matrizB, matrizC, matrizD;
@@ -335,6 +354,7 @@ int main(int argc, char *argv[]) {
     const char *arqD = argv[6];          
     const char *arqE = argv[7]; 
     //definição do tamanho da matriz
+
     matrizA.linha = tamanho_matriz;
     matrizA.coluna = tamanho_matriz;
     matrizB.linha = tamanho_matriz;
@@ -348,6 +368,15 @@ int main(int argc, char *argv[]) {
     start = clock(); 
 
     // Matriz A, B e C
+    // Verificação do tamanho das matrizes 
+    if ((TamanhoMatriz(arqA) == -1) || (TamanhoMatriz(arqB) == -1) || (TamanhoMatriz(arqC) == -1)) {
+        return 1; // Retorna 1 se houver erro ao abrir o arquivo
+    } 
+    if ((TamanhoMatriz(arqA) < tamanho_matriz) || (TamanhoMatriz(arqB) < tamanho_matriz) || (TamanhoMatriz(arqC) < tamanho_matriz)) {
+        printf("O tamanho fornecido excede o numero de linhas e colunas presentes no arquivo.\n");
+        return 1;
+    }
+    // Alocando matrizes
     matrizA_elementos = AlocarMatriz(matrizA.linha, matrizA.coluna);
     matrizB_elementos = AlocarMatriz(matrizB.linha, matrizB.coluna);
     matrizC_elementos = AlocarMatriz(matrizC.linha, matrizC.coluna);
