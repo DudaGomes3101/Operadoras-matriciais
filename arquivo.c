@@ -52,7 +52,7 @@ void * LerMatriz(void *args){
 }
 
 // Função para somar duas matrizes e armazenar o resultado em uma terceira matriz
-void ThreadSomarMatrizes(void *args){
+void *ThreadSomarMatrizes(void *args){
     ThreadSomaInfo*info = (ThreadSomaInfo*)args;
     clock_t start = clock(); //Inicio da soma
     int linhas_por_thread = info->linhas / info->num_threads;
