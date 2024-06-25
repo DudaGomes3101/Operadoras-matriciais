@@ -1,4 +1,4 @@
-#include "arquivo.h"
+#include "arquivo.c"
 
 //  MAIN
 int main(int argc, char *argv[]) {
