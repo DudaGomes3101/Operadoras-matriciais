@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     ThreadEscritaInfo infoEscritaD = {arqD, matrizD_elementos, matrizD.linha, matrizD.coluna};
     // Criar a thread de escrita
     pthread_t threadEscritaD;
-    criarThread(&threadEscritaD, LerMatriz, &infoEscritaD, "leitura para o arquivo D");
+    criarThread(&threadEscritaD, Threadescrevenamatriz, &infoEscritaD, "leitura para o arquivo D");
     aguardarThread(threadEscritaD, "leitura para o arquivo D");
     
     // Verificar se o número de colunas da matriz C é igual ao número de linhas da matriz D
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
         // Abrir arquivo para escrita da matriz E resultante da multiplicação de C e D
         pthread_t thread_escritaE;
         ThreadEscritaInfo infoE = {arqE, matrizE_elementos, tamanho_matriz, tamanho_matriz};
-        criarThread(&thread_escritaE, LerMatriz, &infoE, "leitura para o arquivo E");
+        criarThread(&thread_escritaE, Threadescrevenamatriz, &infoE, "leitura para o arquivo E");
         aguardarThread(thread_escritaE, "leitura para o arquivo E");
         // Reduzir a matriz E e obter um único valor
         Reduzir(matrizE_elementos, matrizC.linha, matrizD.coluna, num_threads);
